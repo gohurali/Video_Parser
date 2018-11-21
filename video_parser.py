@@ -11,6 +11,10 @@ Python script for frame extraction from video files.
 How to run:
 python3 video_parser.py <video location> <output directory name> <number of frames to skip>
 
+Note: 
+0 for the number of frames to skip with give all the frames within the video
+5 will save a frame for every 5 seconds in the video
+
 You must have OpenCV and Numpy to be able to run this program as they are dependencies:
     To install OpenCV:
         pip install opencv-python
@@ -27,6 +31,10 @@ parser.add_argument('seconds_delay',help='number of seconds delayed before frame
 args = parser.parse_args()
 
 def get_current_time():
+    '''
+    Using time module to get current time and using it 
+    as a time convention.
+    '''
     minute = time.localtime().tm_min
     hour = time.localtime().tm_hour
     day = time.localtime().tm_mday
@@ -35,6 +43,12 @@ def get_current_time():
     return minute, hour, day, month, year
 
 def parse_video(args):
+    '''
+    Grabbing particular frames from the video capture and saving them to disk
+    at a given location that is taken from the command line.
+
+    :param: Arguments taken from the command line
+    '''
     video_path = args.input_video
     frame_count = 0
     vid_cap = cv2.VideoCapture(video_path)
