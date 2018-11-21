@@ -39,7 +39,7 @@ def parse_video(args):
     frame_count = 0
     vid_cap = cv2.VideoCapture(video_path)
     minute, hour, day, month, year = get_current_time()
-    
+
     if(os.path.exists(args.output_dir) == False):
         os.mkdir(args.output_dir)
     else:
@@ -55,9 +55,8 @@ def parse_video(args):
         ret, frame = vid_cap.read()
         
         if(ret == True):
-            im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_'+str(frame_count) + '.png'
+            im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
             print('Creating image: ', im_name)
-
             save_loc = args.output_dir + '/' + im_name
             cv2.imwrite(save_loc,frame)
         else:
