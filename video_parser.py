@@ -1,8 +1,19 @@
+__author__ = 'Gohur Ali'
+__version__ = 1.2
 import cv2
 import os
 import argparse
 import time
 import numpy as np
+"""
+Python script for frame extraction from video files.
+
+How to run:
+python3 video_parser.py <video location> <output directory name> <number of frames to skip>
+
+You must have OpenCV and Numpy to be able to run this program as they are dependencies
+Files are named YYYYMMDDhourMinute_pictureNum.png
+"""
 
 parser = argparse.ArgumentParser(description='Process and Cut Video Frames')
 parser.add_argument('input_video', help='name of the directory that the images will be stored in')
