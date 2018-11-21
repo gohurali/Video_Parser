@@ -2,10 +2,12 @@ import cv2
 import os
 import argparse
 import time
+import numpy as np
 
 parser = argparse.ArgumentParser(description='Process and Cut Video Frames')
 parser.add_argument('input_video', help='name of the directory that the images will be stored in')
 parser.add_argument('output_dir', help='the video path in filesystem')
+parser.add_argument('seconds_delay',help='number of seconds delayed before frame is saved')
 args = parser.parse_args()
 
 video_path = args.input_video
@@ -25,7 +27,11 @@ month = time.localtime().tm_mon
 year = time.localtime().tm_year
 
 while(vid_cap.isOpened()):
-    vid_cap.set(cv2.CAP_PROP_POS_MSEC,(frame_count*1000))
+    if(int(args.seconds_delay) == 0):
+        vid_cap.set(cv2.CAP_PROP_POS_MSEC, frame_count)
+    elif(int(args.seconds_delay) > 0):
+        frame_skip_rate = np.float32( int(frame_count) * int(args.seconds_delay) * 1000)
+        vid_cap.set(cv2.CAP_PROP_POS_MSEC,(frame_skip_rate))
     
     ret, frame = vid_cap.read()
     
