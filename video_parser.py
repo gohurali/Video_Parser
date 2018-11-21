@@ -8,7 +8,8 @@ import numpy as np  # Python float to Numpy float conversion
 """
 Python script for frame extraction from video files.
 
-How to run:
+How to run this script:
+In a bash or windows command prompt terminal run the following command
 python3 video_parser.py <video location> <output directory name> <number of frames to skip>
 
 Note: 
