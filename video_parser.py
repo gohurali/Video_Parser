@@ -5,6 +5,7 @@ import os           # Directory searching
 import argparse     # Command line arguement seeting
 import time         # Getting current time for naming convention
 import numpy as np  # Python float to Numpy float conversion
+
 """
 Python script for frame extraction from video files.
 
@@ -14,6 +15,7 @@ python3 video_parser.py <video location> <output directory name> <number of fram
 
 Note: 
 0 for the number of frames to skip with give all the frames within the video
+0.5 will save a frame every half a second or 2 images a second
 5 will save a frame for every 5 seconds in the video
 
 You must have OpenCV and Numpy to be able to run this program as they are dependencies:
@@ -61,10 +63,10 @@ def parse_video(args):
         print('Directory: "',args.output_dir,'" already exists!')
 
     while(vid_cap.isOpened()):
-        if(int(args.seconds_delay) == 0):
+        if(float(args.seconds_delay) == 0):
             vid_cap.set(cv2.CAP_PROP_POS_MSEC, frame_count)
-        elif(int(args.seconds_delay) > 0):
-            frame_skip_rate = np.float32( int(frame_count) * int(args.seconds_delay) * 1000)
+        elif(float(args.seconds_delay) > 0):
+            frame_skip_rate = np.float32( float(frame_count) * float(args.seconds_delay) * 1000)
             vid_cap.set(cv2.CAP_PROP_POS_MSEC,(frame_skip_rate))
 
         ret, frame = vid_cap.read()
