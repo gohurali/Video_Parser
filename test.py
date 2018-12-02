@@ -1,12 +1,11 @@
 __author__ = 'Gohur Ali'
 __version__ = 2.0
-import cv2          # Opening video and grabbing frames
-import os           # Directory searching
-import sys
-import argparse     # Command line arguement seeting
-import time         # Getting current time for naming convention
-import numpy as np  # Python float to Numpy float conversion
-from tqdm import tqdm
+import cv2              # Opening video and grabbing frames
+import os               # Directory searching  
+import argparse         # Command line arguement seeting
+import time             # Getting current time for naming convention
+import numpy as np      # Python float to Numpy float conversion
+from tqdm import tqdm   # Progress bar for visualizing number of frames
 
 """
 Python script for frame extraction from video files.
@@ -49,6 +48,11 @@ def get_current_time():
     return minute, hour, day, month, year
 
 def get_info(args):
+    '''
+    Returns information about the video capture
+    :param: args - arguments taken from command line
+    :return: duration of the video capture and total num of frames
+    '''
     video_path = args.input_video
     vid_cap = cv2.VideoCapture(video_path)
     fps = vid_cap.get(cv2.CAP_PROP_FPS)
@@ -57,11 +61,25 @@ def get_info(args):
     return duration, frame_count
 
 def frame_estimation(args, duration):
+    '''
+    Calculating the number of frames that will be saved
+    to disk in the output directory
+    :param: args - arguments taken from command line
+    :param: duration - the duration of the video capture
+    :return: num of frames to be saved
+    '''
     img_per_sec = 1 / float(args.seconds_delay)
     frames_est = img_per_sec * duration
     return frames_est
 
 def parse_all_frames(args, frame_count):
+    '''
+    If 0 seconds was specified in seconds_delay arg
+    then parse_all_frames extracts all frames from 
+    the video capture
+    :param: args - arguments taken from command line
+    :param: frame_count - number of frames in the video capture
+    '''
     pbar = tqdm(total=frame_count)
     video_path = args.input_video
     frame_counter = 0
@@ -82,11 +100,9 @@ def parse_all_frames(args, frame_count):
             frame_counter += 1
         if(frame_counter == frame_count):
             break
-        
     pbar.close()
     vid_cap.release()
-    cv2.destroyAllWindows()   
-    sys.exit()     
+    cv2.destroyAllWindows()       
 
 def parse_video(args, frame_est):
     '''
@@ -94,6 +110,7 @@ def parse_video(args, frame_est):
     at a given location that is taken from the command line.
 
     :param: Arguments taken from the command line
+    :param: The estimated number of frames to be saved to disk
     '''
     video_path = args.input_video
     frame_count = 0
@@ -112,8 +129,7 @@ def parse_video(args, frame_est):
             frame_skip_rate = np.float32( float(frame_count) * float(args.seconds_delay) * 1000)
             vid_cap.set(cv2.CAP_PROP_POS_MSEC,(frame_skip_rate))
 
-        ret, frame = vid_cap.read()
-        
+        ret, frame = vid_cap.read()        
         if(ret == True):
             im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
             tqdm.write(('Creating image: ' + im_name))
