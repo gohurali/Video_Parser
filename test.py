@@ -5,6 +5,7 @@ import os           # Directory searching
 import argparse     # Command line arguement seeting
 import time         # Getting current time for naming convention
 import numpy as np  # Python float to Numpy float conversion
+from tqdm import tqdm
 
 """
 Python script for frame extraction from video files.
@@ -14,7 +15,6 @@ In a bash or windows command prompt terminal run the following command
 python3 video_parser.py <video location> <output directory name> <number of frames to skip>
 
 Note: 
-0 for the number of frames to skip with give all the frames within the video
 0.5 will save a frame every half a second or 2 images a second
 5 will save a frame for every 5 seconds in the video
 
@@ -23,6 +23,8 @@ You must have OpenCV and Numpy to be able to run this program as they are depend
         pip install opencv-python
     To install numpy
         pip install numpy
+    To install tqdm
+        pip install tqdm
 
 Output images are named YYYYMMDDhourMinute_pictureNum.png
 """
@@ -45,7 +47,7 @@ def get_current_time():
     year = time.localtime().tm_year
     return minute, hour, day, month, year
 
-def get_fps(args):
+def get_info(args):
     video_path = args.input_video
     vid_cap = cv2.VideoCapture(video_path)
     fps = vid_cap.get(cv2.CAP_PROP_FPS)
@@ -56,9 +58,14 @@ def get_fps(args):
 
     duration = frame_count/fps
     print('duration = ', duration)
-    pass
+    return duration
 
-def parse_video(args):
+def frame_estimation(args, duration):
+    img_per_sec = 1 / float(args.seconds_delay)
+    frames_est = img_per_sec * duration
+    return frames_est
+
+def parse_video(args, frame_est):
     '''
     Grabbing particular frames from the video capture and saving them to disk
     at a given location that is taken from the command line.
@@ -69,6 +76,8 @@ def parse_video(args):
     frame_count = 0
     vid_cap = cv2.VideoCapture(video_path)
     minute, hour, day, month, year = get_current_time()
+
+    pbar = tqdm(total=frame_est, leave=False)
 
     if(os.path.exists(args.output_dir) == False):
         os.mkdir(args.output_dir)
@@ -86,19 +95,22 @@ def parse_video(args):
         
         if(ret == True):
             im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
-            print('Creating image: ', im_name)
+            tqdm.write( ('Creating image: ' + im_name ))
             save_loc = args.output_dir + '/' + im_name
             cv2.imwrite(save_loc,frame)
+            pbar.update(1)
         else:
             break
         frame_count += 1
-
+    pbar.close()
     vid_cap.release()
     cv2.destroyAllWindows()
 
 def main():
     #parse_video(args)
-    get_fps(args)
+    duration = get_info(args)
+    frame_est = frame_estimation(args, duration)
+    parse_video(args, frame_est)
 
 if __name__ == '__main__':
     main()
