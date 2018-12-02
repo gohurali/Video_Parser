@@ -1,7 +1,8 @@
 __author__ = 'Gohur Ali'
-__version__ = 1.2
+__version__ = 2.0
 import cv2          # Opening video and grabbing frames
 import os           # Directory searching
+import sys
 import argparse     # Command line arguement seeting
 import time         # Getting current time for naming convention
 import numpy as np  # Python float to Numpy float conversion
@@ -51,19 +52,41 @@ def get_info(args):
     video_path = args.input_video
     vid_cap = cv2.VideoCapture(video_path)
     fps = vid_cap.get(cv2.CAP_PROP_FPS)
-    print('fps = ', fps)
-
     frame_count = vid_cap.get(cv2.CAP_PROP_FRAME_COUNT)
-    print('frame_count = ', frame_count)
-
     duration = frame_count/fps
-    print('duration = ', duration)
-    return duration
+    return duration, frame_count
 
 def frame_estimation(args, duration):
     img_per_sec = 1 / float(args.seconds_delay)
     frames_est = img_per_sec * duration
     return frames_est
+
+def parse_all_frames(args, frame_count):
+    pbar = tqdm(total=frame_count)
+    video_path = args.input_video
+    frame_counter = 0
+    vid_cap = cv2.VideoCapture(video_path)
+    minute, hour, day, month, year = get_current_time()
+
+    if(os.path.exists(args.output_dir) == False):
+        os.mkdir(args.output_dir)
+
+    while(vid_cap.isOpened()):
+        ret, frame = vid_cap.read()
+        if(ret == True):
+            im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_counter) + '.png'
+            tqdm.write(('Creating image: ' + im_name))
+            save_loc = args.output_dir + '/' + im_name
+            cv2.imwrite(save_loc,frame)
+            pbar.update(1)
+            frame_counter += 1
+        if(frame_counter == frame_count):
+            break
+        
+    pbar.close()
+    vid_cap.release()
+    cv2.destroyAllWindows()   
+    sys.exit()     
 
 def parse_video(args, frame_est):
     '''
@@ -81,8 +104,6 @@ def parse_video(args, frame_est):
 
     if(os.path.exists(args.output_dir) == False):
         os.mkdir(args.output_dir)
-    else:
-        print('Directory: "',args.output_dir,'" already exists!')
 
     while(vid_cap.isOpened()):
         if(float(args.seconds_delay) == 0):
@@ -95,7 +116,7 @@ def parse_video(args, frame_est):
         
         if(ret == True):
             im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
-            tqdm.write( ('Creating image: ' + im_name ))
+            tqdm.write(('Creating image: ' + im_name))
             save_loc = args.output_dir + '/' + im_name
             cv2.imwrite(save_loc,frame)
             pbar.update(1)
@@ -107,10 +128,12 @@ def parse_video(args, frame_est):
     cv2.destroyAllWindows()
 
 def main():
-    #parse_video(args)
-    duration = get_info(args)
-    frame_est = frame_estimation(args, duration)
-    parse_video(args, frame_est)
+    duration, frame_count = get_info(args)
+    if(float(args.seconds_delay) == 0):
+        parse_all_frames(args, frame_count)
+    else:
+        frame_est = frame_estimation(args, duration)
+        parse_video(args, frame_est)
 
 if __name__ == '__main__':
     main()
