@@ -30,9 +30,9 @@ Output images are named YYYYMMDDhourMinute_pictureNum.png
 """
 
 parser = argparse.ArgumentParser(description='Process and Cut Video Frames')
-parser.add_argument('input_video', help='name of the directory that the images will be stored in')
-parser.add_argument('output_dir', help='the video path in filesystem')
-parser.add_argument('seconds_delay',help='number of seconds delayed before frame is saved')
+parser.add_argument('--input_video', help='name of the directory that the images will be stored in')
+parser.add_argument('--output_dir', help='the video path in filesystem')
+parser.add_argument('--seconds_delay',help='number of seconds delayed before frame is saved')
 args = parser.parse_args()
 
 def get_current_time():
