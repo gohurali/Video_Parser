@@ -9,3 +9,5 @@ This is script can help obtain images from a video capture that can be used for 
     * `pip install opencv-python`
 * tqdm
     * `pip install tqdm`
+* imageio
+    * `pip install imageio`
