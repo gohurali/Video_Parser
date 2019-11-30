@@ -1,2 +1,6 @@
 *.MOV
 *.mov
+frames/
+input/
+output/
+.vscode/
