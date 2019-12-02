@@ -38,6 +38,7 @@ parser.add_argument('--make-video',action='store_true',help='create gif image vi
 parser.add_argument('--frames_path',help='location to image frames to create gif')
 parser.add_argument('--output_loc',help='location where gif will be located')
 parser.add_argument('--fps',help='frames per second')
+parser.add_argument('--date_name',action='store_true',help='gives a unique name based on current time')
 args = parser.parse_args()
 
 def get_current_time():
@@ -94,10 +95,14 @@ def parse_all_frames(args, frame_count):
     if(os.path.exists(args.output_dir) == False):
         os.mkdir(args.output_dir)
 
+    count = 0
     while(vid_cap.isOpened()):
         ret, frame = vid_cap.read()
         if(ret == True):
-            im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_counter) + '.png'
+            if(args.date_name):
+                im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_counter) + '.png'
+            else:
+                im_name = str(count) + '.png'
             tqdm.write(('Creating image: ' + im_name))
             save_loc = args.output_dir + '/' + im_name
             cv2.imwrite(save_loc,frame)
@@ -105,6 +110,7 @@ def parse_all_frames(args, frame_count):
             frame_counter += 1
         if(frame_counter == frame_count):
             break
+        count += 1
     pbar.close()
     vid_cap.release()
     cv2.destroyAllWindows()       
@@ -136,7 +142,10 @@ def parse_video(args, frame_est):
 
         ret, frame = vid_cap.read()        
         if(ret == True):
-            im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
+            if(args.date_name):
+                im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '_' +str(frame_count) + '.png'
+            else:
+                im_name = str(frame_count) + '.png'
             tqdm.write(('Creating image: ' + im_name))
             save_loc = args.output_dir + '/' + im_name
             cv2.imwrite(save_loc,frame)
@@ -150,20 +159,27 @@ def parse_video(args, frame_est):
 
 def make_gif(dir_loc):
     images = []
+    names = []
+    im_data = {}
     for f in os.listdir(dir_loc):
+        im_name_num = int(f.split('.')[0])
         im = imageio.imread(dir_loc+f)
         images.append(im)
+        im_data[im_name_num] = im
+    imgs = list(im_data.values())
     minute, hour, day, month, year = get_current_time()
     im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '.gif'
-    imageio.mimsave(args.output_loc+im_name,images)
+    imageio.mimsave(args.output_loc+im_name,imgs)
     print('-- Saved gif at location [' +args.output_loc+'] --' )
 
 def make_video(dir_loc):
     fps = int(args.fps)
-    images = []
+    im_data = {}
     for f in os.listdir(dir_loc):
+        im_name_num = int(f.split('.')[0])
         im = imageio.imread(dir_loc+f)
-        images.append(im)
+        im_data[im_name_num] = im
+    images = list(im_data.values())
     minute, hour, day, month, year = get_current_time()
     im_name = str(year) + str(month) + str(day) + str(hour) + str(minute) + '.avi'
     height,width,_ = images[0].shape
